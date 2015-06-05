@@ -93,6 +93,8 @@ size_t numRows = parser.readAll(dataPtrList, dataWrapperSize);
 ### Python
 
 ```
+import pyerg
+
 parser = pyerg.Reader()
 parser.open("my_file.erg")
 data = parser.readAll()

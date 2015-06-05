@@ -1,0 +1,29 @@
+0.4.1
+- Improved documentation
+
+0.4
+- Rename Parser C++ and Python class in Reader
+- Fix data names
+- Fix errors in documentation
+- Rename ErgParser.cpp and ErgParser.h in erg.cpp and erg.h
+- Added pyerg.__version.__
+- Added FindNumPy.cmake from Numexpr project to find NumPy includes within CMake
+- Improved documentation in README.md
+- Add MIT license to all source files and file LICENSE
+
+0.3
+- Setup script does not import NumPy module directly anymore
+- Setup script know the required dependencies
+
+0.2
+- Installable and unit tests working on Windows (Anaconda, MinGW 4.7)
+- Added Parser.close() function to Python extension
+- Improved documentations and docstrings
+
+0.1
+- Initial implementation
+- C++ parser
+- C Python extension
+- C++ unit test
+- Python unit test
+- Linux only

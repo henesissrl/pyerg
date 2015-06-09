@@ -147,7 +147,7 @@ public:
     std::string unit;   //!< The unit. It can be an empty string.
     std::string typeStr; //!< The type represented as string.
     Type type;          //!< The type.
-    size_t size;        //!< The size in bytes.
+    size_t size;        //!< The size in bytes of each data element.
     size_t offset;      //!< The offset in bytes from the start of the record.
 };
 
@@ -239,11 +239,23 @@ public:
      * \brief Read a single dataset from the file
      *
      * \param qindex Index of the dataset to read
-     * \param outData The pre-allocated destination memory
+     * \param dst The pre-allocated destination memory
      * \param size The size of the allocated memory
      * \return The number of records that has been read.
      */
-    size_t read(const size_t qindex, uint8_t* outData, const size_t size);
+    size_t read(const size_t qindex, uint8_t* dst, const size_t size);
+
+    /*!
+     * \brief Read a slice of single dataset from the file
+     *
+     * \param qindex Index of the dataset to read
+     * \param from Index of the first record to read
+     * \param count Maximum number of records to read
+     * \param dst The pre-allocated destination memory
+     * \param size The size of the allocated memory
+     * \return The number of records that has been read.
+     */
+    size_t read(const size_t qindex, const size_t from, const size_t count, uint8_t* dst, const size_t size);
 
     /*!
      * \brief Size in bytes of the dataset at the current index.

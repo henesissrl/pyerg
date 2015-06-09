@@ -269,13 +269,23 @@ TEST(Reader, Read)
 
     std::vector<double> Time(parser.records(), 0.0);
     size_t timeIndex = parser.index("Data_8");
-    size_t numRows = parser.read(timeIndex, reinterpret_cast<uint8_t*>(Time.data()), Time.size());
+    size_t numRows = parser.read(timeIndex, reinterpret_cast<uint8_t*>(Time.data()), Time.size()*sizeof(double));
     ASSERT_EQ(numRows, parser.records());
 
     for(int i=0; i<numRows; ++i)
     {
         int value = std::lround(Time[i]*100.0);
         ASSERT_EQ(value, i);
+    }
+
+    std::vector<double> Time2(100, 0.0);
+    numRows = parser.read(timeIndex, 1000, 100, reinterpret_cast<uint8_t*>(Time2.data()), Time2.size()*sizeof(double));
+    ASSERT_EQ(numRows, 100);
+
+    for(int i=0; i<numRows; ++i)
+    {
+        int value = std::lround(Time2[i]*100.0);
+        ASSERT_EQ(value, i+1000);
     }
 }
 

@@ -320,14 +320,16 @@ size_t Reader::readAll(std::vector<uint8_t*>& values, const std::vector<size_t>&
     return readRows;
 }
 
-size_t Reader::read(const size_t qindex, uint8_t* outData, const size_t size)
+size_t Reader::read(const size_t qindex, uint8_t* dst, const size_t size)
 {
+    return read(qindex, 0, mRecordsCount, dst, size);
+    /*
     if(qindex>=mQuantities.size())
         throw std::runtime_error("Index "+std::to_string(qindex)+" is out of bounds.");
 
     const Quantity& qt = mQuantities[qindex];
 
-    if((qt.size*mRecordsCount)<size)
+    if((qt.size*mRecordsCount)>size)
         throw std::runtime_error("Not enough data allocated");
 
     memset(outData, 0, size);
@@ -354,6 +356,49 @@ size_t Reader::read(const size_t qindex, uint8_t* outData, const size_t size)
         arrayLe2Host(outData, qt.size, readRows);
     else
         arrayBe2Host(outData, qt.size, readRows);
+
+    return readRows;
+    */
+}
+
+size_t Reader::read(const size_t qindex, const size_t from, const size_t count, uint8_t* dst, const size_t size)
+{
+    if(qindex>=mQuantities.size())
+        throw std::runtime_error("Index "+std::to_string(qindex)+" is out of bounds.");
+
+    const Quantity& qt = mQuantities[qindex];
+
+    size_t expectedSize = qt.size * count;
+    if(expectedSize>size)
+        throw std::runtime_error("Not enough data allocated: "+std::to_string(size)+\
+                                 " instead of "+std::to_string(expectedSize)+" bytes.");
+
+    memset(dst, 0, size);
+    const size_t inOffset = qt.offset;
+
+    // Skip initial bytes
+    size_t bytesToSkip = initialSkipBytes() + mRecordSize * from;
+    mFile.seekg(bytesToSkip, std::ios_base::beg);
+
+    std::vector<uint8_t> row(mRecordSize, 0);
+    uint8_t* rowData = row.data();
+    size_t readRows = 0;
+    for(size_t index=0; index<count; ++index)
+    {
+        mFile.read(reinterpret_cast<char*>(rowData), mRecordSize);
+        if(mFile.eof())
+            break;
+
+        readRows += 1;
+
+        const size_t outOffset = index * qt.size;
+        std::memcpy(dst + outOffset,  rowData + inOffset, qt.size);
+    }
+
+    if(mByteOrder==ByteOrder::LittelEndian)
+        arrayLe2Host(dst, qt.size, readRows);
+    else
+        arrayBe2Host(dst, qt.size, readRows);
 
     return readRows;
 }

@@ -59,7 +59,7 @@ PyFUNC Parser_records(Reader* self);
 PyFUNC Parser_recordSize(Reader* self);
 PyFUNC Parser_numQuanities(Reader* self);
 PyFUNC Parser_readAll(Reader* self);
-PyFUNC Parser_read(Reader* self, PyObject* arg);
+PyFUNC Parser_read(Reader* self, PyObject *args, PyObject *keywds);
 PyFUNC Parser_quantitySize(Reader* self, PyObject* arg);
 PyFUNC Parser_quantityName(Reader* self, PyObject* arg);
 PyFUNC Parser_quantityType(Reader* self, PyObject* arg);
@@ -92,7 +92,7 @@ static PyMethodDef parser_methods[] = {
         PYERG_PARSER_READALL_DOC
     },
     {
-        "read", (PyCFunction)Parser_read, METH_O,
+        "read", (PyCFunction)Parser_read, METH_VARARGS|METH_KEYWORDS,
         PYERG_PARSER_READ_DOC
     },
     {

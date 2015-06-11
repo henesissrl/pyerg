@@ -38,7 +38,7 @@ pyergCmodule = Extension('pyerg',
                          language='c++')
 
 setup(name='pyerg',
-      version='0.4',
+      version='0.5.0',
       description='Python C extension for reading IPG CarMaker ERG files.',
       author='Alessandro Bacchini',
       author_email='alessandro.bacchini@henesis.eu',

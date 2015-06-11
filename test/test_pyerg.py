@@ -216,6 +216,10 @@ class TestPyergReader(unittest.TestCase):
         t = parser.read('Data_8')
         self.assertEquals(len(t), parser.records())
 
+        t2 = parser.read('Data_8', start=10, count=90)
+        self.assertEquals(len(t2), 90)
+        self.assertTrue(np.all(t2 == t[10:100]))
+
 
 class TestPyerg(unittest.TestCase):
 

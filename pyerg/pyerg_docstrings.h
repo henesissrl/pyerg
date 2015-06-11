@@ -64,7 +64,7 @@
     "    Dict of numpy ndarray with the datasets in the file. The names of the datasets are " \
     "the keys of the Dict.\n" \
     "Raises:\n" \
-    "    Exception if the file can't be read or is not an ERG file." 
+    "    Exception if the file can't be read or is not an ERG file."
 
 #define PYERG_CAN_READ_DOC  \
     "ok = can_read(filename)\n" \
@@ -81,7 +81,7 @@
     "Args:\n" \
     "    filename: Pathname of the erg file.\n" \
     "Raises:\n" \
-    "    Exception if the file can't be read or is not an ERG file." 
+    "    Exception if the file can't be read or is not an ERG file."
 
 #define PYERG_PARSER_RECORDS_DOC   \
     "Number of records/rows in th `.erg` file.\n\n" \
@@ -98,7 +98,7 @@
     "The number of quantities is the number of columns that contains data in each record:\n" \
     "the padding columns are ignored.\n\n" \
     "Returns:\n" \
-    "    The number of quantities.\n" 
+    "    The number of quantities.\n"
 
 #define PYERG_PARSER_READALL_DOC   \
     "Read all the datasets from the file.\n\n" \
@@ -106,12 +106,14 @@
     "    Dict with all the datasets as numpy ndarray with the quantity names as keys." \
     "See:\n" \
     "    quantitySize() to know the size of each dataset to known in advice the quantity of memory " \
-    "that will be used." 
+    "that will be used."
 
 #define PYERG_PARSER_READ_DOC   \
     "Read a single dataset from the file.\n\n" \
     "Args:\n" \
-    "    qindex: Index or name of the dataset to read.\n" \
+    "    name: Index or name of the dataset to read.\n" \
+    "    start: Index of the row from which to start reading.\n" \
+    "    count: Number of rows to read.\n" \
     "Returns:\n" \
     "    Numpy ndarray with the data.\n"  \
     "Raises:\n" \
@@ -170,14 +172,14 @@
 #define PYERG_PARSER_ISFORTRAN_DOC   \
     "Version of th ERG file.\n\n" \
     "Returns:\n" \
-    "    True if the format of the file is Fortran binary (`FORTRAN_Binary_Data`)." 
+    "    True if the format of the file is Fortran binary (`FORTRAN_Binary_Data`)."
 
 #define PYERG_PARSER_HAS_DOC   \
     "Test if the quantity is present in the file.\n" \
     "Args:\n" \
     "    name: Name of the quantity.\n" \
     "Returns:\n" \
-    "    True if the quantity is present inside the file, False otherwise." 
+    "    True if the quantity is present inside the file, False otherwise."
 
 #define PYERG_PARSER_CLOSE_DOC   \
     "Close the current file and clear the data." \

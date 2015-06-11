@@ -100,6 +100,21 @@ static size_t indexFromPyObject(erg::Reader* parser, PyObject* arg)
 
 PyFUNC py_read(PyObject* self, PyObject* filename)
 {
+    PyObject* args = PyTuple_New(0);
+    Reader* pyReader = (Reader*)PyObject_CallObject((PyObject*)&pyerg_ReaderType, args);
+    Py_DecRef(args);
+
+    PyObject* ret = Parser_open(pyReader, filename);
+    if(ret==nullptr)
+        return nullptr;
+
+    Py_DecRef(ret);
+
+    PyObject* data = Parser_readAll(pyReader);
+    Py_DecRef((PyObject*)pyReader);
+    return data;
+
+    /*
     // self is unused.
     if(PyString_Check(filename)==false) {
         PyErr_SetString(PyExc_NameError, "The input arguments must be a string");
@@ -174,6 +189,7 @@ PyFUNC py_read(PyObject* self, PyObject* filename)
     }
 
     return map;
+    */
 }
 
 PyFUNC py_can_read(PyObject* self, PyObject* filename)
@@ -190,7 +206,6 @@ PyFUNC py_can_read(PyObject* self, PyObject* filename)
 
     // Release the GIL because the open function is an I/O
     // operation that read a file.
-    PyThreadState *_save; // The GIL save state
     Py_BEGIN_ALLOW_THREADS;
         try {
             // Try to read the file: if the file is valid,
@@ -229,7 +244,7 @@ PyFUNC Parser_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
 
 extern "C" int Parser_init(Reader* self, PyObject *args, PyObject *kwds)
 {
-    if(PyTuple_Size(args)==1) {
+    if(args!=nullptr && PyTuple_Size(args)==1) {
         // Initialize with a filename: open the file
         PyObject* filename = PyTuple_GetItem(args, 0);
 
@@ -344,9 +359,9 @@ PyFUNC Parser_read(Reader* self, PyObject* args, PyObject* keywds)
 {
     PyObject* objIndex = nullptr;
     size_t from = 0;
-    size_t to = self->parser->records();
-    static char* kwlist[] = {"from", "to", nullptr};
-    if(!PyArg_ParseTupleAndKeywords(args, keywds, "O|ii", kwlist, &objIndex, &from, &to))
+    size_t count = self->parser->records();
+    static char* kwlist[] = {"name", "start", "count", NULL};
+    if(!PyArg_ParseTupleAndKeywords(args, keywds, "O|ii", kwlist, &objIndex, &from, &count))
         return nullptr;
 
     const size_t qindex = indexFromPyObject(self->parser, objIndex);
@@ -354,7 +369,7 @@ PyFUNC Parser_read(Reader* self, PyObject* args, PyObject* keywds)
         return nullptr;
 
     // Numpy array creation
-    npy_intp rows = self->parser->records();
+    npy_intp rows = count;
     int type = ergType2npyType(self->parser->quantityType(qindex));
     PyArrayObject* array = (PyArrayObject*)PyArray_SimpleNew(1, &rows, type);
     uint8_t* outData = (uint8_t*)PyArray_DATA(array);
@@ -363,7 +378,7 @@ PyFUNC Parser_read(Reader* self, PyObject* args, PyObject* keywds)
     std::string error;
     Py_BEGIN_ALLOW_THREADS;
         try {
-            self->parser->read(qindex, from, to, outData, size);
+            self->parser->read(qindex, from, count, outData, size);
         } catch(std::runtime_error e) {
             error = e.what();
         }
@@ -499,12 +514,11 @@ PyMODINIT_FUNC initpyerg(void)
     if (PyType_Ready(&pyerg_ReaderType) < 0)
         return;
 
-    pyergModule = Py_InitModule3("pyerg", pyerg_methods,
-                       "Module for loading CarMaker .erg files.");
+    pyergModule = Py_InitModule3("pyerg", pyerg_methods, "Module for loading CarMaker .erg files.");
 
     Py_INCREF(&pyerg_ReaderType);
     PyModule_AddObject(pyergModule, "Reader", (PyObject*)&pyerg_ReaderType);
-    PyModule_AddStringConstant(pyergModule, "__version__", "0.4.1");
+    PyModule_AddStringConstant(pyergModule, "__version__", "0.5.0");
 
     import_array();
 }

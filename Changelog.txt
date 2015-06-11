@@ -1,3 +1,8 @@
+0.5.0
+- Fixed bugs in `erg::Reader::read()` function
+- Add ability to read only a portion of a quantity from both C++ and Python
+- Improved pyerg.read() function: now it create a erg.Reader Python object
+
 0.4.1
 - Improved documentation
 

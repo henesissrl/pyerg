@@ -92,7 +92,7 @@ static PyMethodDef parser_methods[] = {
         PYERG_PARSER_READALL_DOC
     },
     {
-        "read", (PyCFunction)Parser_read, METH_KEYWORDS,
+        "read", (PyCFunction)Parser_read, METH_VARARGS|METH_KEYWORDS,
         PYERG_PARSER_READ_DOC
     },
     {

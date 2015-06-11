@@ -340,35 +340,42 @@ PyFUNC Parser_readAll(Reader* self)
     return map;
 }
 
-PyFUNC Parser_read(Reader* self, PyObject* arg)
+PyFUNC Parser_read(Reader* self, PyObject* args, PyObject* keywds)
 {
-    size_t qindex = indexFromPyObject(self->parser, arg);
+    PyObject* objIndex = nullptr;
+    size_t from = 0;
+    size_t to = self->parser->records();
+    static char* kwlist[] = {"from", "to", nullptr};
+    if(!PyArg_ParseTupleAndKeywords(args, keywds, "O|ii", kwlist, &objIndex, &from, &to))
+        return nullptr;
+
+    const size_t qindex = indexFromPyObject(self->parser, objIndex);
     if(PyErr_Occurred()!=nullptr)
         return nullptr;
 
     // Numpy array creation
     npy_intp rows = self->parser->records();
     int type = ergType2npyType(self->parser->quantityType(qindex));
-    PyObject* array = PyArray_SimpleNew(1, &rows, type);
-    uint8_t* outData = (uint8_t*)PyArray_DATA((PyArrayObject*)array);
-    npy_intp size = PyArray_NBYTES((PyArrayObject*)array);
+    PyArrayObject* array = (PyArrayObject*)PyArray_SimpleNew(1, &rows, type);
+    uint8_t* outData = (uint8_t*)PyArray_DATA(array);
+    const npy_intp size = PyArray_NBYTES(array);
 
     std::string error;
     Py_BEGIN_ALLOW_THREADS;
         try {
-            self->parser->read(qindex, outData, size);
+            self->parser->read(qindex, from, to, outData, size);
         } catch(std::runtime_error e) {
             error = e.what();
         }
     Py_END_ALLOW_THREADS;
 
     if(error.length()>0) {
-        Py_DecRef(array);
+        Py_DecRef((PyObject*)array);
         PyErr_SetString(PyExc_NameError, error.c_str());
         return nullptr;
     }
 
-    return array;
+    return (PyObject*)array;
 }
 
 PyFUNC Parser_quantitySize(Reader* self, PyObject* arg)

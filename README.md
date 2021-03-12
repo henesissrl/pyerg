@@ -10,8 +10,8 @@ Henesis s.r.l. is not affiliated with IPG, the developer of CarMaker program.
 ### Python library
 
 - Linux, Windows (tested within Anaconda)
-- Python 2.7
-- Numpy >= 1.7
+- Python >=3.7
+- Numpy >= 1.14
 - GCC >= 4.7
 
 ### C++ library

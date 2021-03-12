@@ -46,9 +46,19 @@ namespace erg
  * \brief Check if the host has big endian order.
  * \return `true` if the host has big endian order.
  */
+/*
 static constexpr bool isBigEndian()
 {
     return ((union{ uint32_t i; char c[4];}){0x01020304}).c[0] == 1;
+}*/
+
+union {
+  uint16_t s;
+  unsigned char c[2];
+} constexpr static  d {1};
+
+constexpr bool isBigEndian() {
+  return d.c[0] != 1;
 }
 
 static constexpr uint16_t bswap16(const uint16_t x)

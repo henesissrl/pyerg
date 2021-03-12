@@ -135,8 +135,7 @@ static PyMethodDef parser_methods[] = {
 };
 
 static PyTypeObject pyerg_ReaderType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "pyerg.Reader",            /*tp_name*/
     sizeof(Reader),            /*tp_basicsize*/
     0,                         /*tp_itemsize*/

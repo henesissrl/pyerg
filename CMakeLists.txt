@@ -1,5 +1,5 @@
 project(cErgParser)
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.12)
 
 option(BUILD_PYTHON_MODULE "Build the Python module" OFF)
 option(BUILD_TESTS "Build the tests" OFF)

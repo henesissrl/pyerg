@@ -37,11 +37,36 @@ pyergCmodule = Extension('pyerg',
                          extra_compile_args=['-std=c++11'],
                          language='c++')
 
+classifiers = [
+    # How mature is this project? Common values are
+    #   3 - Alpha
+    #   4 - Beta
+    #   5 - Production/Stable
+    'Development Status :: 4 - Beta',
+
+    # Indicate who your project is intended for
+    'Intended Audience :: Science/Research',
+    'Topic :: Scientific/Engineering',
+
+    # Pick your license as you wish (should match "license" above)
+    'License :: OSI Approved :: MIT',
+
+    # Specify the Python versions you support here.
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9'
+]
+
+# Choose your license
+license = 'MIT'
+
 setup(name='pyerg',
-      version='0.5.0',
+      version='0.6.0',
       description='Python C extension for reading IPG CarMaker ERG files.',
       author='Alessandro Bacchini',
       author_email='alessandro.bacchini@henesis.eu',
       url='http://www.henesis.eu',
       ext_modules=[pyergCmodule],
-      install_requires=['numpy>=1.7'])
+      classifiers=classifiers,
+      license=license, 
+      install_requires=['numpy>=1.14'])

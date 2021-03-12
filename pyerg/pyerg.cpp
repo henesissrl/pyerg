@@ -80,18 +80,18 @@ static size_t indexFromPyObject(erg::Reader* parser, PyObject* arg)
     size_t qindex = 0;
     try {
         // Check if the quantity is a string or an integer
-        if(PyString_Check(arg)) {
+        if(PyUnicode_Check(arg)) {
             // Find the quantity id
-            const char* qname = PyString_AsString(arg);
+            const char* qname = PyUnicode_AsUTF8(arg);
             qindex = parser->index(std::string(qname));
-        } else if(PyInt_Check(arg)){
-            qindex = PyInt_AsLong(arg);
+        } else if(PyLong_Check(arg)){
+            qindex = PyLong_AsLong(arg);
         } else {
             PyErr_SetString(PyExc_NameError, "The argument must be a quantity name or index.");
             return 0;
         }
-    } catch (std::runtime_error e) {
-        PyErr_SetString(PyExc_NameError, e.what());
+    } catch (std::runtime_error& IndexError) {
+        PyErr_SetString(PyExc_NameError, IndexError.what());
         return 0;
     }
     return qindex;
@@ -116,12 +116,12 @@ PyFUNC py_read(PyObject* self, PyObject* filename)
 
     /*
     // self is unused.
-    if(PyString_Check(filename)==false) {
+    if(PyUnicode_Check(filename)==false) {
         PyErr_SetString(PyExc_NameError, "The input arguments must be a string");
         return nullptr;
     }
 
-    const char* filenameStr = PyString_AsString(filename);
+    const char* filenameStr = PyUnicode_AsUTF8(filename);
     erg::Reader parser;
 
     // Error variable: used to check if C++ exceptions are thrown.
@@ -195,12 +195,12 @@ PyFUNC py_read(PyObject* self, PyObject* filename)
 PyFUNC py_can_read(PyObject* self, PyObject* filename)
 {
     // self is unused.
-    if(PyString_Check(filename)==false) {
+    if(PyUnicode_Check(filename)==false) {
         PyErr_SetString(PyExc_NameError, "The input arguments must be a string");
         return nullptr;
     }
 
-    const char* filenameStr = PyString_AsString(filename);
+    const char* filenameStr = PyUnicode_AsUTF8(filename);
     // Flag for check for exceptions in file opening
     bool error = false;
 
@@ -226,10 +226,12 @@ PyFUNC py_can_read(PyObject* self, PyObject* filename)
 }
 
 
-extern "C" void Parser_dealloc(Reader* self)
+extern void Parser_dealloc(Reader* self)
 {
-    delete self->parser;
-    self->ob_type->tp_free((PyObject*)self);
+    PyTypeObject *tp = Py_TYPE(self);
+    // free references and buffers here
+    tp->tp_free(self);
+    Py_DECREF(tp);
 }
 
 PyFUNC Parser_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
@@ -261,12 +263,12 @@ extern "C" int Parser_init(Reader* self, PyObject *args, PyObject *kwds)
 
 PyFUNC Parser_open(Reader* self, PyObject* filename)
 {
-    if(PyString_Check(filename)==false) {
+    if(PyUnicode_Check(filename)==false) {
         PyErr_SetString(PyExc_NameError, "The function arguments must be a string");
         return nullptr;
     }
 
-    const char* filenameStr = PyString_AsString(filename);
+    const char* filenameStr = PyUnicode_AsUTF8(filename);
     std::string error;
 
     // Release the GIL because the open function is an I/O
@@ -274,8 +276,8 @@ PyFUNC Parser_open(Reader* self, PyObject* filename)
     Py_BEGIN_ALLOW_THREADS
         try {
             self->parser->open(filenameStr);
-        } catch (std::runtime_error e) {
-            error = e.what();
+        } catch (std::runtime_error& FileOpenError) {
+            error = FileOpenError.what();
         }
     // Reacquire the GIL
     Py_END_ALLOW_THREADS;
@@ -292,19 +294,19 @@ PyFUNC Parser_open(Reader* self, PyObject* filename)
 PyFUNC Parser_records(Reader* self)
 {
     size_t records = self->parser->records();
-    return PyInt_FromSize_t(records);
+    return PyLong_FromSize_t(records);
 }
 
 PyFUNC Parser_recordSize(Reader* self)
 {
     size_t recordSize = self->parser->recordSize();
-    return PyInt_FromSize_t(recordSize);
+    return PyLong_FromSize_t(recordSize);
 }
 
 PyFUNC Parser_numQuanities(Reader* self)
 {
     size_t numQ = self->parser->numQuanities();
-    return PyInt_FromSize_t(numQ);
+    return PyLong_FromSize_t(numQ);
 }
 
 PyFUNC Parser_readAll(Reader* self)
@@ -340,7 +342,7 @@ PyFUNC Parser_readAll(Reader* self)
     Py_BEGIN_ALLOW_THREADS;
         try {
             self->parser->readAll(dataWrapper, sizeWrapper);
-        } catch(std::runtime_error e) {
+        } catch(std::runtime_error& e) {
             error = e.what();
         }
     Py_END_ALLOW_THREADS;
@@ -379,7 +381,7 @@ PyFUNC Parser_read(Reader* self, PyObject* args, PyObject* keywds)
     Py_BEGIN_ALLOW_THREADS;
         try {
             self->parser->read(qindex, from, count, outData, size);
-        } catch(std::runtime_error e) {
+        } catch(std::runtime_error& e) {
             error = e.what();
         }
     Py_END_ALLOW_THREADS;
@@ -400,8 +402,8 @@ PyFUNC Parser_quantitySize(Reader* self, PyObject* arg)
         return nullptr;
     try {
         size_t qsize = self->parser->quantitySize(qindex);
-        return PyInt_FromSize_t(qsize);
-    } catch (std::runtime_error e) {
+        return PyLong_FromSize_t(qsize);
+    } catch (std::runtime_error& e) {
         PyErr_SetString(PyExc_NameError, e.what());
         return nullptr;
     }
@@ -414,8 +416,8 @@ PyFUNC Parser_quantityName(Reader* self, PyObject* arg)
         return nullptr;
     try {
         std::string qname = self->parser->quantityName(qindex);
-        return PyString_FromString(qname.c_str());
-    } catch (std::runtime_error e) {
+        return PyUnicode_FromString(qname.c_str());
+    } catch (std::runtime_error& e) {
         PyErr_SetString(PyExc_NameError, e.what());
         return nullptr;
     }
@@ -430,7 +432,7 @@ PyFUNC Parser_quantityType(Reader* self, PyObject* arg)
         erg::Type type = self->parser->quantityType(qindex);
         int npType = ergType2npyType(type);
         return (PyObject*)PyArray_DescrFromType(npType);
-    } catch (std::runtime_error e) {
+    } catch (std::runtime_error& e) {
         PyErr_SetString(PyExc_NameError, e.what());
         return nullptr;
     }
@@ -443,8 +445,8 @@ PyFUNC Parser_quantityUnit(Reader* self, PyObject* arg)
         return nullptr;
     try {
         std::string qname = self->parser->quantityUnit(qindex);
-        return PyString_FromString(qname.c_str());
-    } catch (std::runtime_error e) {
+        return PyUnicode_FromString(qname.c_str());
+    } catch (std::runtime_error& e) {
         PyErr_SetString(PyExc_NameError, e.what());
         return nullptr;
     }
@@ -452,16 +454,16 @@ PyFUNC Parser_quantityUnit(Reader* self, PyObject* arg)
 
 PyFUNC Parser_index(Reader* self, PyObject* arg)
 {
-    if(!PyString_Check(arg)) {
+    if(!PyUnicode_Check(arg)) {
         PyErr_SetString(PyExc_NameError, "Argument must be a string.");
         return nullptr;
     }
 
     try {
-        const char* qname = PyString_AsString(arg);
+        const char* qname = PyUnicode_AsUTF8(arg);
         size_t qindex = self->parser->index(std::string(qname));
-        return PyInt_FromSize_t(qindex);
-    } catch (std::runtime_error e) {
+        return PyLong_FromSize_t(qindex);
+    } catch (std::runtime_error& e) {
         PyErr_SetString(PyExc_NameError, e.what());
         return nullptr;
     }
@@ -487,12 +489,12 @@ PyFUNC Parser_isFortran(Reader* self)
 
 PyFUNC Parser_has(Reader* self, PyObject* arg)
 {
-    if(!PyString_Check(arg)) {
+    if(!PyUnicode_Check(arg)) {
         PyErr_SetString(PyExc_NameError, "Argument must be a string.");
         return nullptr;
     }
 
-    const char* qname = PyString_AsString(arg);
+    const char* qname = PyUnicode_AsUTF8(arg);
     if(self->parser->has(qname)) {
         Py_RETURN_TRUE;
     }
@@ -506,19 +508,31 @@ PyFUNC Parser_close(Reader* self)
     Py_RETURN_NONE;
 }
 
+static struct PyModuleDef pyergModuleDef = {
+    PyModuleDef_HEAD_INIT,  // Use of undeclared indentifier PyModuleDef_HEAD_INIT
+    "pyerg",            /* m_name */
+    "Module for loading CarMaker .erg files.", /* m_doc */
+    -1,                 /* m_size */
+    pyerg_methods,      /* m_methods */
+    NULL,               /* m_reload */
+    NULL,               /* m_traverse */
+    NULL,               /* m_clear */
+    NULL,               /* m_free */
+};
 
-PyMODINIT_FUNC initpyerg(void)
+PyMODINIT_FUNC PyInit_pyerg(void)
 {
     PyObject* pyergModule;
+    long value=1;
 
     if (PyType_Ready(&pyerg_ReaderType) < 0)
-        return;
+        return NULL;
 
-    pyergModule = Py_InitModule3("pyerg", pyerg_methods, "Module for loading CarMaker .erg files.");
+    pyergModule = PyModule_Create2(&pyergModuleDef, PYTHON_API_VERSION);
 
     Py_INCREF(&pyerg_ReaderType);
-    PyModule_AddObject(pyergModule, "Reader", (PyObject*)&pyerg_ReaderType);
-    PyModule_AddStringConstant(pyergModule, "__version__", "0.5.0");
+    PyModule_AddIntConstant(pyergModule, "Reader", value);
+    PyModule_AddStringConstant(pyergModule, "__version__", "0.6.0");
 
     import_array();
 }

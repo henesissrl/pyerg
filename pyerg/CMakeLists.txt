@@ -1,12 +1,16 @@
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_BUILD_TYPE Release)
 
-find_package(PythonInterp)
-find_package(PythonLibs)
+find_package(Python3 COMPONENTS Interpreter Development)
+if (Python3_FOUND)
+    message("Python include directory: " ${Python3_INCLUDE_DIRS})
+    message("Python version is: " ${Python3_VERSION})
+    include_directories(${Python3_INCLUDE_DIRS})
+endif (Python3_FOUND)
 find_package(NumPy REQUIRED)
 
-include_directories(${PYTHON_INCLUDE_DIRS})
-include_directories(${NUMPY_INCLUDE_DIRS})
+#include_directories(${PYTHON_INCLUDE_DIRS})
+#include_directories(${NUMPY_INCLUDE_DIRS})
 include_directories(../erg)
 
 aux_source_directory(. SOURCES)

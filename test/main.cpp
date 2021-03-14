@@ -46,9 +46,9 @@ TEST(Reader, Open)
 
     erg::Reader parser;
     ASSERT_NO_THROW(parser.open(ERG_1_FILENAME));
-    ASSERT_EQ(parser.recordSize(), 56);
-    ASSERT_EQ(parser.numQuanities(), 12);
-    ASSERT_EQ(parser.records(), 602372);
+    ASSERT_EQ(parser.recordSize(), 120);
+    ASSERT_EQ(parser.numQuanities(), 29);
+    ASSERT_EQ(parser.records(), 411847);
     ASSERT_TRUE(parser.isErg());
 
     /*ASSERT_NO_THROW(parser.open(ERG_2_FILENAME));
@@ -85,23 +85,23 @@ TEST(Reader, Has)
     ASSERT_TRUE(parser.has("Car.ax"));
     ASSERT_TRUE(parser.has("Car.ay"));
     ASSERT_TRUE(parser.has("Car.az"));
-    ASSERT_FALSE(parser.has("Driver.Brake"));
-    ASSERT_FALSE(parser.has("Driver.Gas"));
-    ASSERT_FALSE(parser.has("Driver.Steer.AngAcc"));
-    ASSERT_FALSE(parser.has("Driver.Steer.AngVel"));
-    ASSERT_FALSE(parser.has("Env.WindVel_ext.x"));
-    ASSERT_FALSE(parser.has("Env.WindVel_ext.y"));
-    ASSERT_FALSE(parser.has("Env.WindVel_ext.z"));
-    ASSERT_FALSE(parser.has("Env.WindVel_tot.x"));
-    ASSERT_FALSE(parser.has("Env.WindVel_tot.y"));
-    ASSERT_FALSE(parser.has("Env.WindVel_tot.z"));
-    ASSERT_FALSE(parser.has("Steer.WhlAng"));
-    ASSERT_FALSE(parser.has("Vhcl.Engine.rotv"));
-    ASSERT_FALSE(parser.has("Vhcl.PitchVel"));
-    ASSERT_FALSE(parser.has("Vhcl.RollVel"));
-    ASSERT_FALSE(parser.has("Vhcl.YawRate"));
-    ASSERT_FALSE(parser.has("Vhcl.v"));
-    ASSERT_FALSE(parser.has("Driver.GearNo"));
+    ASSERT_TRUE(parser.has("Driver.Brake"));
+    ASSERT_TRUE(parser.has("Driver.Gas"));
+    ASSERT_TRUE(parser.has("Driver.Steer.AngAcc"));
+    ASSERT_TRUE(parser.has("Driver.Steer.AngVel"));
+    ASSERT_TRUE(parser.has("Env.WindVel_ext.x"));
+    ASSERT_TRUE(parser.has("Env.WindVel_ext.y"));
+    ASSERT_TRUE(parser.has("Env.WindVel_ext.z"));
+    ASSERT_TRUE(parser.has("Env.WindVel_tot.x"));
+    ASSERT_TRUE(parser.has("Env.WindVel_tot.y"));
+    ASSERT_TRUE(parser.has("Env.WindVel_tot.z"));
+    ASSERT_TRUE(parser.has("Steer.WhlAng"));
+    ASSERT_TRUE(parser.has("Vhcl.Engine.rotv"));
+    ASSERT_TRUE(parser.has("Vhcl.PitchVel"));
+    ASSERT_TRUE(parser.has("Vhcl.RollVel"));
+    ASSERT_TRUE(parser.has("Vhcl.YawRate"));
+    ASSERT_TRUE(parser.has("Vhcl.v"));
+    ASSERT_TRUE(parser.has("Driver.GearNo"));
 
     /*ASSERT_NO_THROW(parser.open(ERG_4_FILENAME));
     ASSERT_TRUE(parser.has("Data_8"));
@@ -185,7 +185,6 @@ TEST(Reader, DatasetSize)
     ASSERT_EQ(parser.quantitySize(9), sizeof(float)*rows);
     ASSERT_EQ(parser.quantitySize(10), sizeof(float)*rows);
     ASSERT_EQ(parser.quantitySize(11), sizeof(int)*rows);
-    ASSERT_ANY_THROW(parser.quantitySize(12));
 
     /*ASSERT_NO_THROW(parser.open(ERG_4_FILENAME));
     rows = parser.records();
@@ -210,7 +209,6 @@ TEST(Reader, DatasetName)
     ASSERT_EQ(parser.quantityName(23), "Vhcl.Engine.rotv");
     ASSERT_EQ(parser.quantityName(27), "Vhcl.v");
     ASSERT_EQ(parser.quantityName(28), "Driver.GearNo");
-    ASSERT_ANY_THROW(parser.quantityName(12));
 }
 
 TEST(Reader, DatasetUnit)
@@ -222,11 +220,10 @@ TEST(Reader, DatasetUnit)
     ASSERT_EQ(parser.quantityUnit(1), "");
     ASSERT_EQ(parser.quantityUnit(8), "rad/s");
     ASSERT_EQ(parser.quantityUnit(9), "m/s^2");
-    ASSERT_EQ(parser.quantityUnit(11), "rad/s^2");
+    ASSERT_EQ(parser.quantityUnit(11), "m/s^2");
     ASSERT_EQ(parser.quantityUnit(14), "rad/s^2");
     ASSERT_EQ(parser.quantityUnit(16), "m/s");
     ASSERT_EQ(parser.quantityUnit(22), "rad");
-    ASSERT_ANY_THROW(parser.quantityUnit(12));
 }
 
 
@@ -256,7 +253,7 @@ TEST(Reader, ReadAll)
     double* timedataset = reinterpret_cast<double*>(data[0].data());
     for(int i=0; i<numRows; ++i)
     {
-        int value = std::lround(timedataset[i]*100.0);
+        int value = std::lround(timedataset[i]*1000.0);
         ASSERT_EQ(value, i);
     }
 
@@ -294,13 +291,13 @@ TEST(Reader, Read)
     ASSERT_NO_THROW(parser.open(ERG_1_FILENAME));
 
     std::vector<double> Time(parser.records(), 0.0);
-    size_t timeIndex = parser.index("Data_8");
+    size_t timeIndex = parser.index("Time");
     size_t numRows = parser.read(timeIndex, reinterpret_cast<uint8_t*>(Time.data()), Time.size()*sizeof(double));
     ASSERT_EQ(numRows, parser.records());
 
     for(int i=0; i<numRows; ++i)
     {
-        int value = std::lround(Time[i]*100.0);
+        int value = std::lround(Time[i]*1000.0);
         ASSERT_EQ(value, i);
     }
 
@@ -310,7 +307,7 @@ TEST(Reader, Read)
 
     for(int i=0; i<numRows; ++i)
     {
-        int value = std::lround(Time2[i]*100.0);
+        int value = std::lround(Time2[i]*1000.0);
         ASSERT_EQ(value, i+1000);
     }
 }

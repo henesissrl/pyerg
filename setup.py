@@ -61,7 +61,7 @@ classifiers = [
 license = 'MIT'
 
 setup(name='pyerg',
-      version='0.6.0',
+      version='0.6.1',
       description='Python C extension for reading IPG CarMaker ERG files.',
       author='Alessandro Bacchini',
       author_email='alessandro.bacchini@henesis.eu',

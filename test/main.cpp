@@ -33,10 +33,10 @@
 
 #include "erg.h"
 
-const std::string ERG_1_FILENAME = "../../data/test_data1.erg";
-const std::string ERG_2_FILENAME = "../../data/test_data2.erg";
-const std::string ERG_3_FILENAME = "../../data/test_data3.erg";
-const std::string ERG_4_FILENAME = "../../data/fortran_data.erg";
+const std::string ERG_1_FILENAME = "../../test-data/Test-Dataset-1_175937.erg";
+//const std::string ERG_2_FILENAME = "../../test-data/test_data2.erg";
+//const std::string ERG_3_FILENAME = "../../test-data/test_data3.erg";
+//const std::string ERG_4_FILENAME = "../../test-data/fortran_data.erg";
 
 
 TEST(Reader, Open)
@@ -51,20 +51,20 @@ TEST(Reader, Open)
     ASSERT_EQ(parser.records(), 602372);
     ASSERT_TRUE(parser.isErg());
 
-    ASSERT_NO_THROW(parser.open(ERG_2_FILENAME));
+    /*ASSERT_NO_THROW(parser.open(ERG_2_FILENAME));
     ASSERT_EQ(parser.recordSize(), 56);
     ASSERT_EQ(parser.numQuanities(), 12);
     ASSERT_EQ(parser.records(), 602372);
-    ASSERT_TRUE(parser.isErg());
+    ASSERT_TRUE(parser.isErg());*/
 
-    ASSERT_ANY_THROW(parser.open(ERG_3_FILENAME));
+    //ASSERT_ANY_THROW(parser.open(ERG_3_FILENAME));
 
-    ASSERT_NO_THROW(parser.open(ERG_4_FILENAME));
+    /*ASSERT_NO_THROW(parser.open(ERG_4_FILENAME));
     ASSERT_EQ(parser.recordSize(), 48);
     ASSERT_EQ(parser.numQuanities(), 10);
     ASSERT_EQ(parser.records(), 13410);
     ASSERT_FALSE(parser.isErg());
-    ASSERT_TRUE(parser.isFortran());
+    ASSERT_TRUE(parser.isFortran());*/
 }
 
 
@@ -73,23 +73,37 @@ TEST(Reader, Has)
     erg::Reader parser;
     ASSERT_NO_THROW(parser.open(ERG_1_FILENAME));
 
-    ASSERT_TRUE(parser.has("Data_8"));
-    ASSERT_TRUE(parser.has("Data_1"));
-    ASSERT_TRUE(parser.has("Data_2"));
-    ASSERT_TRUE(parser.has("Data_3"));
-    ASSERT_TRUE(parser.has("Data_4"));
-    ASSERT_TRUE(parser.has("UserOut_00"));
-    ASSERT_TRUE(parser.has("UserOut_01"));
-    ASSERT_TRUE(parser.has("UserOut_02"));
-    ASSERT_TRUE(parser.has("Data_5"));
-    ASSERT_TRUE(parser.has("Data_6"));
-    ASSERT_TRUE(parser.has("Data_7"));
-    ASSERT_TRUE(parser.has("Data_9"));
-    ASSERT_FALSE(parser.has("Data_10"));
-    ASSERT_FALSE(parser.has("none"));
-    ASSERT_FALSE(parser.has("$none$"));
+    ASSERT_TRUE(parser.has("Time"));
+    ASSERT_TRUE(parser.has("Brake.Park"));
+    ASSERT_TRUE(parser.has("Brake.Pedal"));
+    ASSERT_TRUE(parser.has("Car.PitchVel"));
+    ASSERT_TRUE(parser.has("Car.RollVel"));
+    ASSERT_TRUE(parser.has("Car.WheelSpd_FL"));
+    ASSERT_TRUE(parser.has("Car.WheelSpd_FR"));
+    ASSERT_TRUE(parser.has("Car.WheelSpd_RL"));
+    ASSERT_TRUE(parser.has("Car.WheelSpd_RR"));
+    ASSERT_TRUE(parser.has("Car.ax"));
+    ASSERT_TRUE(parser.has("Car.ay"));
+    ASSERT_TRUE(parser.has("Car.az"));
+    ASSERT_FALSE(parser.has("Driver.Brake"));
+    ASSERT_FALSE(parser.has("Driver.Gas"));
+    ASSERT_FALSE(parser.has("Driver.Steer.AngAcc"));
+    ASSERT_FALSE(parser.has("Driver.Steer.AngVel"));
+    ASSERT_FALSE(parser.has("Env.WindVel_ext.x"));
+    ASSERT_FALSE(parser.has("Env.WindVel_ext.y"));
+    ASSERT_FALSE(parser.has("Env.WindVel_ext.z"));
+    ASSERT_FALSE(parser.has("Env.WindVel_tot.x"));
+    ASSERT_FALSE(parser.has("Env.WindVel_tot.y"));
+    ASSERT_FALSE(parser.has("Env.WindVel_tot.z"));
+    ASSERT_FALSE(parser.has("Steer.WhlAng"));
+    ASSERT_FALSE(parser.has("Vhcl.Engine.rotv"));
+    ASSERT_FALSE(parser.has("Vhcl.PitchVel"));
+    ASSERT_FALSE(parser.has("Vhcl.RollVel"));
+    ASSERT_FALSE(parser.has("Vhcl.YawRate"));
+    ASSERT_FALSE(parser.has("Vhcl.v"));
+    ASSERT_FALSE(parser.has("Driver.GearNo"));
 
-    ASSERT_NO_THROW(parser.open(ERG_4_FILENAME));
+    /*ASSERT_NO_THROW(parser.open(ERG_4_FILENAME));
     ASSERT_TRUE(parser.has("Data_8"));
     ASSERT_TRUE(parser.has("data_0"));
     ASSERT_TRUE(parser.has("data_1"));
@@ -100,7 +114,7 @@ TEST(Reader, Has)
     ASSERT_TRUE(parser.has("data_6"));
     ASSERT_TRUE(parser.has("data_7"));
     ASSERT_TRUE(parser.has("data_8"));
-    ASSERT_FALSE(parser.has("$none$"));
+    ASSERT_FALSE(parser.has("$none$"));*/
 }
 
 TEST(Reader, Index)
@@ -108,23 +122,38 @@ TEST(Reader, Index)
     erg::Reader parser;
     ASSERT_NO_THROW(parser.open(ERG_1_FILENAME));
 
-    ASSERT_EQ(parser.index("Data_8"), 0);
-    ASSERT_EQ(parser.index("Data_1"), 1);
-    ASSERT_EQ(parser.index("Data_2"), 2);
-    ASSERT_EQ(parser.index("Data_3"), 3);
-    ASSERT_EQ(parser.index("Data_4"), 4);
-    ASSERT_EQ(parser.index("UserOut_00"), 5);
-    ASSERT_EQ(parser.index("UserOut_01"), 6);
-    ASSERT_EQ(parser.index("UserOut_02"), 7);
-    ASSERT_EQ(parser.index("Data_5"), 8);
-    ASSERT_EQ(parser.index("Data_6"), 9);
-    ASSERT_EQ(parser.index("Data_7"), 10);
-    ASSERT_EQ(parser.index("Data_9"), 11);
-    ASSERT_ANY_THROW(parser.index("Data_10"));
-    ASSERT_ANY_THROW(parser.index("none"));
-    ASSERT_ANY_THROW(parser.index("$none$"));
+    ASSERT_EQ(parser.index("Time"), 0);
+    ASSERT_EQ(parser.index("Brake.Park"), 1);
+    ASSERT_EQ(parser.index("Brake.Pedal"), 2);
+    ASSERT_EQ(parser.index("Car.PitchVel"), 3);
+    ASSERT_EQ(parser.index("Car.RollVel"), 4);
+    ASSERT_EQ(parser.index("Car.WheelSpd_FL"), 5);
+    ASSERT_EQ(parser.index("Car.WheelSpd_FR"), 6);
+    ASSERT_EQ(parser.index("Car.WheelSpd_RL"), 7);
+    ASSERT_EQ(parser.index("Car.WheelSpd_RR"), 8);
+    ASSERT_EQ(parser.index("Car.ax"), 9);
+    ASSERT_EQ(parser.index("Car.ay"), 10);
+    ASSERT_EQ(parser.index("Car.az"), 11);
+    ASSERT_EQ(parser.index("Driver.Brake"), 12);
+    ASSERT_EQ(parser.index("Driver.Gas"), 13);
+    ASSERT_EQ(parser.index("Driver.Steer.AngAcc"), 14);
+    ASSERT_EQ(parser.index("Driver.Steer.AngVel"), 15);
+    ASSERT_EQ(parser.index("Env.WindVel_ext.x"), 16);
+    ASSERT_EQ(parser.index("Env.WindVel_ext.y"), 17);
+    ASSERT_EQ(parser.index("Env.WindVel_ext.z"), 18);
+    ASSERT_EQ(parser.index("Env.WindVel_tot.x"), 19);
+    ASSERT_EQ(parser.index("Env.WindVel_tot.y"), 20);
+    ASSERT_EQ(parser.index("Env.WindVel_tot.z"), 21);
+    ASSERT_EQ(parser.index("Steer.WhlAng"), 22);
+    ASSERT_EQ(parser.index("Vhcl.Engine.rotv"), 23);
+    ASSERT_EQ(parser.index("Vhcl.PitchVel"), 24);
+    ASSERT_EQ(parser.index("Vhcl.RollVel"), 25);
+    ASSERT_EQ(parser.index("Vhcl.YawRate"), 26);
+    ASSERT_EQ(parser.index("Vhcl.v"), 27);
+    ASSERT_EQ(parser.index("Driver.GearNo"), 28);
+    //ASSERT_ANY_THROW(parser.index("$none$"));
 
-    ASSERT_NO_THROW(parser.open(ERG_4_FILENAME));
+    /*ASSERT_NO_THROW(parser.open(ERG_4_FILENAME));
     ASSERT_EQ(parser.index("Data_8"), 9);
     ASSERT_EQ(parser.index("data_0"), 0);
     ASSERT_EQ(parser.index("data_1"), 1);
@@ -135,7 +164,7 @@ TEST(Reader, Index)
     ASSERT_EQ(parser.index("data_6"), 6);
     ASSERT_EQ(parser.index("data_7"), 7);
     ASSERT_EQ(parser.index("data_8"), 8);
-    ASSERT_ANY_THROW(parser.index("$none$"));
+    ASSERT_ANY_THROW(parser.index("$none$"));*/
 }
 
 TEST(Reader, DatasetSize)
@@ -158,10 +187,10 @@ TEST(Reader, DatasetSize)
     ASSERT_EQ(parser.quantitySize(11), sizeof(int)*rows);
     ASSERT_ANY_THROW(parser.quantitySize(12));
 
-    ASSERT_NO_THROW(parser.open(ERG_4_FILENAME));
+    /*ASSERT_NO_THROW(parser.open(ERG_4_FILENAME));
     rows = parser.records();
     for(int i=0; i<parser.numQuanities(); ++i)
-        ASSERT_EQ(parser.quantitySize(i), sizeof(float)*rows);
+        ASSERT_EQ(parser.quantitySize(i), sizeof(float)*rows);*/
 }
 
 TEST(Reader, DatasetName)
@@ -169,18 +198,18 @@ TEST(Reader, DatasetName)
     erg::Reader parser;
     ASSERT_NO_THROW(parser.open(ERG_1_FILENAME));
 
-    ASSERT_EQ(parser.quantityName(0), "Data_8");
-    ASSERT_EQ(parser.quantityName(1), "Data_1");
-    ASSERT_EQ(parser.quantityName(2), "Data_2");
-    ASSERT_EQ(parser.quantityName(3), "Data_3");
-    ASSERT_EQ(parser.quantityName(4), "Data_4");
-    ASSERT_EQ(parser.quantityName(5), "UserOut_00");
-    ASSERT_EQ(parser.quantityName(6), "UserOut_01");
-    ASSERT_EQ(parser.quantityName(7), "UserOut_02");
-    ASSERT_EQ(parser.quantityName(8), "Data_5");
-    ASSERT_EQ(parser.quantityName(9), "Data_6");
-    ASSERT_EQ(parser.quantityName(10), "Data_7");
-    ASSERT_EQ(parser.quantityName(11), "Data_9");
+    ASSERT_EQ(parser.quantityName(0), "Time");
+    ASSERT_EQ(parser.quantityName(1), "Brake.Park");
+    ASSERT_EQ(parser.quantityName(3), "Car.PitchVel");
+    ASSERT_EQ(parser.quantityName(5), "Car.WheelSpd_FL");
+    ASSERT_EQ(parser.quantityName(9), "Car.ax");
+    ASSERT_EQ(parser.quantityName(12), "Driver.Brake");
+    ASSERT_EQ(parser.quantityName(14), "Driver.Steer.AngAcc");
+    ASSERT_EQ(parser.quantityName(16), "Env.WindVel_ext.x");
+    ASSERT_EQ(parser.quantityName(22), "Steer.WhlAng");
+    ASSERT_EQ(parser.quantityName(23), "Vhcl.Engine.rotv");
+    ASSERT_EQ(parser.quantityName(27), "Vhcl.v");
+    ASSERT_EQ(parser.quantityName(28), "Driver.GearNo");
     ASSERT_ANY_THROW(parser.quantityName(12));
 }
 
@@ -190,17 +219,13 @@ TEST(Reader, DatasetUnit)
     ASSERT_NO_THROW(parser.open(ERG_1_FILENAME));
 
     ASSERT_EQ(parser.quantityUnit(0), "s");
-    ASSERT_EQ(parser.quantityUnit(1), "m");
-    ASSERT_EQ(parser.quantityUnit(2), "rad/s");
-    ASSERT_EQ(parser.quantityUnit(3), "Nm");
-    ASSERT_EQ(parser.quantityUnit(4), "");
-    ASSERT_EQ(parser.quantityUnit(5), "");
-    ASSERT_EQ(parser.quantityUnit(6), "");
-    ASSERT_EQ(parser.quantityUnit(7), "");
-    ASSERT_EQ(parser.quantityUnit(8), "m/s");
-    ASSERT_EQ(parser.quantityUnit(9), "m/s");
-    ASSERT_EQ(parser.quantityUnit(10), "m/s^2");
-    ASSERT_EQ(parser.quantityUnit(11), "");
+    ASSERT_EQ(parser.quantityUnit(1), "");
+    ASSERT_EQ(parser.quantityUnit(8), "rad/s");
+    ASSERT_EQ(parser.quantityUnit(9), "m/s^2");
+    ASSERT_EQ(parser.quantityUnit(11), "rad/s^2");
+    ASSERT_EQ(parser.quantityUnit(14), "rad/s^2");
+    ASSERT_EQ(parser.quantityUnit(16), "m/s");
+    ASSERT_EQ(parser.quantityUnit(22), "rad");
     ASSERT_ANY_THROW(parser.quantityUnit(12));
 }
 
@@ -236,7 +261,7 @@ TEST(Reader, ReadAll)
     }
 
     // Read all Fortran binary format
-    ASSERT_NO_THROW(parser.open(ERG_4_FILENAME));
+    /*ASSERT_NO_THROW(parser.open(ERG_4_FILENAME));
 
     data.clear();
     data.assign(parser.numQuanities(), std::vector<uint8_t>());
@@ -260,7 +285,7 @@ TEST(Reader, ReadAll)
     {
         int value = std::lround(timedataset2[i]*100.0);
         ASSERT_EQ(value, i);
-    }
+    }*/
 }
 
 TEST(Reader, Read)

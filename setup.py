@@ -26,6 +26,7 @@
 
 from setuptools import setup, Extension
 import site
+import io
 
 python_libs = site.getsitepackages()
 numpyInclude0 = python_libs[0] + '/numpy/core/include'
@@ -49,7 +50,7 @@ classifiers = [
     'Topic :: Scientific/Engineering',
 
     # Pick your license as you wish (should match "license" above)
-    'License :: OSI Approved :: MIT',
+    'License :: OSI Approved :: MIT License',
 
     # Specify the Python versions you support here.
     'Programming Language :: Python :: 3.7',
@@ -60,9 +61,15 @@ classifiers = [
 # Choose your license
 license = 'MIT'
 
+def read(filename):
+    with io.open(filename, mode="r", encoding='utf-8') as fd:
+        return fd.read()
+
 setup(name='pyerg',
-      version='0.6.0',
-      description='Python C extension for reading IPG CarMaker ERG files.',
+      version='0.6.1',
+      description='Python C extension to read IPG CarMaker ERG files',
+      long_description=read("README.md"),
+      long_description_content_type='text/markdown',
       author='Alessandro Bacchini',
       author_email='alessandro.bacchini@henesis.eu',
       url='http://www.henesis.eu',

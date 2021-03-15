@@ -226,7 +226,7 @@ PyFUNC py_can_read(PyObject* self, PyObject* filename)
 }
 
 
-extern void Parser_dealloc(Reader* self)
+extern "C" void Parser_dealloc(Reader* self)
 {
     PyTypeObject *tp = Py_TYPE(self);
     // free references and buffers here
@@ -514,25 +514,28 @@ static struct PyModuleDef pyergModuleDef = {
     "Module for loading CarMaker .erg files.", /* m_doc */
     -1,                 /* m_size */
     pyerg_methods,      /* m_methods */
-    NULL,               /* m_reload */
-    NULL,               /* m_traverse */
-    NULL,               /* m_clear */
-    NULL,               /* m_free */
 };
 
 PyMODINIT_FUNC PyInit_pyerg(void)
 {
-    PyObject* pyergModule;
-    long value=1;
+    PyObject *pyergModule;
+
+    pyergModule = PyModule_Create(&pyergModuleDef);
+    if (pyergModule == NULL)
+        return NULL;
 
     if (PyType_Ready(&pyerg_ReaderType) < 0)
         return NULL;
 
-    pyergModule = PyModule_Create2(&pyergModuleDef, PYTHON_API_VERSION);
-
     Py_INCREF(&pyerg_ReaderType);
-    PyModule_AddIntConstant(pyergModule, "Reader", value);
-    PyModule_AddStringConstant(pyergModule, "__version__", "0.6.0");
+    if (PyModule_AddObject(pyergModule, "Reader", (PyObject*)&pyerg_ReaderType) < 0) {
+        Py_DECREF(pyergModule);
+        Py_DECREF(&pyerg_ReaderType);
+        return NULL;
+    }
+    PyModule_AddStringConstant(pyergModule, "__version__", "0.6.1");
 
     import_array();
+
+    return pyergModule;
 }
